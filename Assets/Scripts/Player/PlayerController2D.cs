@@ -1,4 +1,7 @@
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController2D : MonoBehaviour
@@ -56,15 +59,15 @@ public class PlayerController2D : MonoBehaviour
             return;
         }
 
-        horizontalInput = Input.GetAxisRaw("Horizontal");
+        horizontalInput = ReadHorizontalInput();
 
-        if (Input.GetButtonDown("Jump"))
+        if (ReadJumpPressed())
         {
             jumpPressed = true;
             jumpBufferTimer = jumpBufferTime;
         }
 
-        jumpHeld = Input.GetButton("Jump");
+        jumpHeld = ReadJumpHeld();
 
         if (jumpBufferTimer > 0f)
         {
@@ -193,5 +196,65 @@ public class PlayerController2D : MonoBehaviour
     {
         groundCheck = check;
         groundLayer = mask;
+    }
+
+    private float ReadHorizontalInput()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null)
+        {
+            float horizontal = 0f;
+            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            {
+                horizontal -= 1f;
+            }
+            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            {
+                horizontal += 1f;
+            }
+            return horizontal;
+        }
+
+        if (Gamepad.current != null)
+        {
+            return Mathf.Clamp(Gamepad.current.leftStick.ReadValue().x, -1f, 1f);
+        }
+#endif
+
+        return Input.GetAxisRaw("Horizontal");
+    }
+
+    private bool ReadJumpPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null)
+        {
+            return Keyboard.current.spaceKey.wasPressedThisFrame;
+        }
+
+        if (Gamepad.current != null)
+        {
+            return Gamepad.current.buttonSouth.wasPressedThisFrame;
+        }
+#endif
+
+        return Input.GetButtonDown("Jump");
+    }
+
+    private bool ReadJumpHeld()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null)
+        {
+            return Keyboard.current.spaceKey.isPressed;
+        }
+
+        if (Gamepad.current != null)
+        {
+            return Gamepad.current.buttonSouth.isPressed;
+        }
+#endif
+
+        return Input.GetButton("Jump");
     }
 }
