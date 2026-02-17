@@ -6,8 +6,10 @@ public class HudText2D : MonoBehaviour
     [SerializeField] private Text coinText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text livesText;
+    [SerializeField] private Text codeText;
 
     private GameSession session;
+    private CodeShooter2D shooter;
 
     private void Start()
     {
@@ -31,6 +33,11 @@ public class HudText2D : MonoBehaviour
             }
         }
 
+        if (shooter == null)
+        {
+            shooter = FindObjectOfType<CodeShooter2D>();
+        }
+
         if (coinText != null)
         {
             coinText.text = $"COIN {session.Coins:00}";
@@ -45,6 +52,11 @@ public class HudText2D : MonoBehaviour
         {
             livesText.text = $"LIFE {session.Lives}";
         }
+
+        if (codeText != null && shooter != null)
+        {
+            codeText.text = $"CODE {shooter.CurrentCode}  PWR {shooter.PowerLevel}";
+        }
     }
 
     public void SetTexts(Text coin, Text score, Text lives)
@@ -52,5 +64,10 @@ public class HudText2D : MonoBehaviour
         coinText = coin;
         scoreText = score;
         livesText = lives;
+    }
+
+    public void SetCodeText(Text code)
+    {
+        codeText = code;
     }
 }

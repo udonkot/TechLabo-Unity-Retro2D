@@ -7,27 +7,25 @@ public class CodeShooter2D : MonoBehaviour
 {
     [SerializeField] private float shootInterval = 0.25f;
     [SerializeField] private Vector2 muzzleOffset = new Vector2(0.55f, 0.12f);
-    [SerializeField] private string[] codeLevels =
+    [SerializeField] private string initialCode = "i";
+    [SerializeField] private string[] completeExpressions =
     {
-        "i",
-        "if",
-        "int",
-        "init",
-        "while",
-        "for(i)",
-        "for(i=0;i<n;i++)"
+        "i==sum(arr)",
+        "i==sum(arr)+max(x,y)"
     };
 
     private float coolDown;
-    private int level;
+    private string currentCode;
+    private int completedExpressionCount;
     private PlayerController2D player;
 
-    public int Level => level;
-    public string CurrentCode => codeLevels[Mathf.Clamp(level, 0, codeLevels.Length - 1)];
+    public int PowerLevel => completedExpressionCount;
+    public string CurrentCode => currentCode;
 
     private void Awake()
     {
         player = GetComponent<PlayerController2D>();
+        currentCode = string.IsNullOrWhiteSpace(initialCode) ? "i" : initialCode;
     }
 
     private void Update()
@@ -45,13 +43,24 @@ public class CodeShooter2D : MonoBehaviour
         if (coolDown <= 0f && ReadShootPressed())
         {
             Fire();
-            coolDown = shootInterval;
+            coolDown = Mathf.Max(0.08f, shootInterval - (completedExpressionCount * 0.03f));
         }
+    }
+
+    public void AppendToken(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            return;
+        }
+
+        currentCode += token;
+        TryCompleteExpression();
     }
 
     public void LevelUp()
     {
-        level = Mathf.Min(level + 1, codeLevels.Length - 1);
+        AppendToken("=");
     }
 
     private void Fire()
@@ -67,7 +76,32 @@ public class CodeShooter2D : MonoBehaviour
         collider.radius = 0.12f;
 
         CodeProjectile2D codeProjectile = projectile.AddComponent<CodeProjectile2D>();
-        codeProjectile.Initialize(new Vector2(facing, 0f), CurrentCode);
+        codeProjectile.Initialize(new Vector2(facing, 0f), CurrentCode, completedExpressionCount);
+    }
+
+    private void TryCompleteExpression()
+    {
+        if (completeExpressions == null || completeExpressions.Length == 0)
+        {
+            return;
+        }
+
+        if (completedExpressionCount >= completeExpressions.Length)
+        {
+            return;
+        }
+
+        string target = completeExpressions[completedExpressionCount];
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            completedExpressionCount++;
+            return;
+        }
+
+        if (currentCode.EndsWith(target))
+        {
+            completedExpressionCount++;
+        }
     }
 
     private bool ReadShootPressed()

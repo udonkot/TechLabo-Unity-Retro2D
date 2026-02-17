@@ -96,12 +96,21 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
 
     private static void CreateCodePowerUps(Sprite sprite)
     {
-        CreateCodePowerUp(new Vector2(-3.2f, -2.1f), sprite);
-        CreateCodePowerUp(new Vector2(2.5f, -0.05f), sprite);
-        CreateCodePowerUp(new Vector2(6.8f, 1.8f), sprite);
+        CreateCodePowerUp(new Vector2(-4.8f, -2.1f), "=", sprite);
+        CreateCodePowerUp(new Vector2(-3.4f, -2.1f), "=", sprite);
+        CreateCodePowerUp(new Vector2(-2.0f, -2.1f), "sum(", sprite);
+        CreateCodePowerUp(new Vector2(-0.6f, -2.1f), "arr", sprite);
+        CreateCodePowerUp(new Vector2(0.8f, -2.1f), ")", sprite);
+
+        CreateCodePowerUp(new Vector2(2.2f, -0.1f), "+", sprite);
+        CreateCodePowerUp(new Vector2(3.6f, 0.3f), "max(", sprite);
+        CreateCodePowerUp(new Vector2(4.9f, 0.9f), "x", sprite);
+        CreateCodePowerUp(new Vector2(6.0f, 1.3f), ",", sprite);
+        CreateCodePowerUp(new Vector2(7.0f, 1.6f), "y", sprite);
+        CreateCodePowerUp(new Vector2(8.0f, 1.9f), ")", sprite);
     }
 
-    private static void CreateCodePowerUp(Vector2 position, Sprite sprite)
+    private static void CreateCodePowerUp(Vector2 position, string token, Sprite sprite)
     {
         GameObject item = new GameObject("CodePowerUp");
         item.transform.position = position;
@@ -120,14 +129,15 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
         label.transform.localPosition = new Vector3(0f, 0f, -0.01f);
 
         TextMesh textMesh = label.AddComponent<TextMesh>();
-        textMesh.text = "++";
+        textMesh.text = token;
         textMesh.characterSize = 0.22f;
         textMesh.anchor = TextAnchor.MiddleCenter;
         textMesh.alignment = TextAlignment.Center;
         textMesh.color = new Color(0.03f, 0.15f, 0.08f);
         textMesh.fontSize = 36;
 
-        item.AddComponent<CodePowerUp2D>();
+        CodePowerUp2D powerUp = item.AddComponent<CodePowerUp2D>();
+        powerUp.SetToken(token);
     }
 
     private static void CreateCoins(Sprite sprite)
@@ -213,9 +223,11 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
         Text coinText = CreateHudText(canvasObj.transform, "CoinText", new Vector2(90f, -24f), font);
         Text scoreText = CreateHudText(canvasObj.transform, "ScoreText", new Vector2(290f, -24f), font);
         Text lifeText = CreateHudText(canvasObj.transform, "LifeText", new Vector2(500f, -24f), font);
+        Text codeText = CreateHudText(canvasObj.transform, "CodeText", new Vector2(90f, -66f), font);
 
         HudText2D hud = canvasObj.AddComponent<HudText2D>();
         hud.SetTexts(coinText, scoreText, lifeText);
+        hud.SetCodeText(codeText);
     }
 
     private static Text CreateHudText(Transform parent, string name, Vector2 anchoredPos, Font font)

@@ -116,6 +116,14 @@ Unity の Layer に以下を追加します。
 1. `CodePowerUp` オブジェクト作成
 2. BoxCollider2D を Is Trigger = true
 3. CodePowerUp2D を追加
+4. CodePowerUp2D の `token` に文字列を設定（例: `=`, `sum(`, `arr`, `)`）
+
+### コード強化ルール
+
+- 初期コードは `i`
+- 取得した `token` は末尾に連結される
+- 自動ステージでは `i==sum(arr)`、次に `i==sum(arr)+max(x,y)` が完成すると強化段階アップ
+- 強化で弾が太く・速くなり、複数の敵を貫通しやすくなる
 
 ## 7. 落下死ゾーン
 
