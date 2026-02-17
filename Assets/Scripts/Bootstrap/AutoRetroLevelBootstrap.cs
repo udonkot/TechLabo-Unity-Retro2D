@@ -32,15 +32,20 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
         playerRb.gravityScale = 3f;
         playerRb.freezeRotation = true;
         PlayerController2D playerController = player.AddComponent<PlayerController2D>();
+        SalarymanVisual2D playerVisual = player.AddComponent<SalarymanVisual2D>();
+        player.AddComponent<CodeShooter2D>();
+        player.AddComponent<RetroPixelSnap2D>();
 
         GameObject groundCheck = new GameObject("GroundCheck");
         groundCheck.transform.SetParent(player.transform);
         groundCheck.transform.localPosition = new Vector3(0f, -0.62f, 0f);
         playerController.ConfigureGroundCheck(groundCheck.transform, Physics2D.DefaultRaycastLayers);
+        playerController.ConfigureVisualRoot(playerVisual.VisualRoot);
 
         CreateGround(groundLayer, boxSprite);
         CreatePlatforms(groundLayer, boxSprite);
         CreateEnemies(groundLayer, boxSprite);
+        CreateCodePowerUps(boxSprite);
         CreateCoins(boxSprite);
         CreateGoal(boxSprite);
         CreateKillZone();
@@ -73,6 +78,8 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
         rb.freezeRotation = true;
 
         EnemyPatrol2D patrol = enemy.AddComponent<EnemyPatrol2D>();
+        BugEnemyVisual2D enemyVisual = enemy.AddComponent<BugEnemyVisual2D>();
+        enemy.AddComponent<RetroPixelSnap2D>();
 
         GameObject wallCheck = new GameObject("WallCheck");
         wallCheck.transform.SetParent(enemy.transform);
@@ -84,6 +91,43 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
 
         int mask = groundLayer == 0 ? Physics2D.DefaultRaycastLayers : LayerMask.GetMask("Ground");
         patrol.ConfigureChecks(wallCheck.transform, edgeCheck.transform, mask);
+        patrol.ConfigureVisualRoot(enemyVisual.VisualRoot);
+    }
+
+    private static void CreateCodePowerUps(Sprite sprite)
+    {
+        CreateCodePowerUp(new Vector2(-3.2f, -2.1f), sprite);
+        CreateCodePowerUp(new Vector2(2.5f, -0.05f), sprite);
+        CreateCodePowerUp(new Vector2(6.8f, 1.8f), sprite);
+    }
+
+    private static void CreateCodePowerUp(Vector2 position, Sprite sprite)
+    {
+        GameObject item = new GameObject("CodePowerUp");
+        item.transform.position = position;
+        item.transform.localScale = new Vector3(0.52f, 0.52f, 1f);
+
+        SpriteRenderer renderer = item.AddComponent<SpriteRenderer>();
+        renderer.sprite = sprite;
+        renderer.color = new Color(0.2f, 0.95f, 0.55f);
+        renderer.sortingOrder = 30;
+
+        BoxCollider2D collider = item.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+
+        GameObject label = new GameObject("Label");
+        label.transform.SetParent(item.transform);
+        label.transform.localPosition = new Vector3(0f, 0f, -0.01f);
+
+        TextMesh textMesh = label.AddComponent<TextMesh>();
+        textMesh.text = "++";
+        textMesh.characterSize = 0.22f;
+        textMesh.anchor = TextAnchor.MiddleCenter;
+        textMesh.alignment = TextAlignment.Center;
+        textMesh.color = new Color(0.03f, 0.15f, 0.08f);
+        textMesh.fontSize = 36;
+
+        item.AddComponent<CodePowerUp2D>();
     }
 
     private static void CreateCoins(Sprite sprite)
@@ -145,6 +189,12 @@ public class AutoRetroLevelBootstrap : MonoBehaviour
         if (follow == null)
         {
             follow = main.gameObject.AddComponent<CameraFollow2D>();
+        }
+
+        RetroPixelSnap2D snap = main.GetComponent<RetroPixelSnap2D>();
+        if (snap == null)
+        {
+            snap = main.gameObject.AddComponent<RetroPixelSnap2D>();
         }
 
         follow.SetTarget(player);

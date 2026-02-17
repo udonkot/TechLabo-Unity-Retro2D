@@ -9,6 +9,7 @@ public class EnemyPatrol2D : MonoBehaviour
     [SerializeField] private float checkDistance = 0.15f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float stompBounceVelocity = 9f;
+    [SerializeField] private Transform visualRoot;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -70,7 +71,13 @@ public class EnemyPatrol2D : MonoBehaviour
     private void TurnAround()
     {
         movingRight = !movingRight;
-        if (spriteRenderer != null)
+        if (visualRoot != null)
+        {
+            Vector3 scale = visualRoot.localScale;
+            scale.x = Mathf.Abs(scale.x) * (movingRight ? 1f : -1f);
+            visualRoot.localScale = scale;
+        }
+        else if (spriteRenderer != null)
         {
             spriteRenderer.flipX = !movingRight;
         }
@@ -117,6 +124,16 @@ public class EnemyPatrol2D : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void DefeatByCode()
+    {
+        if (dead)
+        {
+            return;
+        }
+
+        Die();
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
@@ -138,5 +155,10 @@ public class EnemyPatrol2D : MonoBehaviour
         wallCheck = newWallCheck;
         edgeCheck = newEdgeCheck;
         groundLayer = mask;
+    }
+
+    public void ConfigureVisualRoot(Transform root)
+    {
+        visualRoot = root;
     }
 }

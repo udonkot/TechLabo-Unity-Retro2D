@@ -26,6 +26,7 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] private float invincibleDuration = 1f;
     [SerializeField] private float knockbackX = 5f;
     [SerializeField] private float knockbackY = 8f;
+    [SerializeField] private Transform visualRoot;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -36,9 +37,11 @@ public class PlayerController2D : MonoBehaviour
     private float invincibleTimer;
     private bool jumpPressed;
     private bool jumpHeld;
+    private int facingDirection = 1;
 
     public bool IsGrounded { get; private set; }
     public bool IsDead { get; private set; }
+    public int FacingDirection => facingDirection;
 
     private void Awake()
     {
@@ -79,9 +82,19 @@ public class PlayerController2D : MonoBehaviour
             invincibleTimer -= Time.deltaTime;
         }
 
-        if (spriteRenderer != null && Mathf.Abs(horizontalInput) > 0.01f)
+        if (Mathf.Abs(horizontalInput) > 0.01f)
         {
-            spriteRenderer.flipX = horizontalInput < 0f;
+            facingDirection = horizontalInput < 0f ? -1 : 1;
+            if (visualRoot != null)
+            {
+                Vector3 scale = visualRoot.localScale;
+                scale.x = Mathf.Abs(scale.x) * (horizontalInput < 0f ? -1f : 1f);
+                visualRoot.localScale = scale;
+            }
+            else if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = horizontalInput < 0f;
+            }
         }
     }
 
@@ -198,6 +211,11 @@ public class PlayerController2D : MonoBehaviour
         groundLayer = mask;
     }
 
+    public void ConfigureVisualRoot(Transform root)
+    {
+        visualRoot = root;
+    }
+
     private float ReadHorizontalInput()
     {
 #if ENABLE_INPUT_SYSTEM
@@ -220,8 +238,11 @@ public class PlayerController2D : MonoBehaviour
             return Mathf.Clamp(Gamepad.current.leftStick.ReadValue().x, -1f, 1f);
         }
 #endif
-
+    #if ENABLE_LEGACY_INPUT_MANAGER
         return Input.GetAxisRaw("Horizontal");
+    #else
+        return 0f;
+    #endif
     }
 
     private bool ReadJumpPressed()
@@ -237,8 +258,11 @@ public class PlayerController2D : MonoBehaviour
             return Gamepad.current.buttonSouth.wasPressedThisFrame;
         }
 #endif
-
+    #if ENABLE_LEGACY_INPUT_MANAGER
         return Input.GetButtonDown("Jump");
+    #else
+        return false;
+    #endif
     }
 
     private bool ReadJumpHeld()
@@ -254,7 +278,10 @@ public class PlayerController2D : MonoBehaviour
             return Gamepad.current.buttonSouth.isPressed;
         }
 #endif
-
+    #if ENABLE_LEGACY_INPUT_MANAGER
         return Input.GetButton("Jump");
+    #else
+        return false;
+    #endif
     }
 }

@@ -14,6 +14,7 @@
 
 - 左右移動: A/D または ←/→
 - ジャンプ: Space
+- コード射撃: J（または Left Ctrl）
 
 ## Unityでの実行方法（調査結果）
 
@@ -48,6 +49,12 @@
 - Assets/Scripts/Core/HudText2D.cs
 - Assets/Scripts/Camera/CameraFollow2D.cs
 - Assets/Scripts/Bootstrap/AutoRetroLevelBootstrap.cs
+- Assets/Scripts/Visuals/SalarymanVisual2D.cs
+- Assets/Scripts/Visuals/BugEnemyVisual2D.cs
+- Assets/Scripts/Visuals/RetroPixelSnap2D.cs
+- Assets/Scripts/Combat/CodeShooter2D.cs
+- Assets/Scripts/Combat/CodeProjectile2D.cs
+- Assets/Scripts/Items/CodePowerUp2D.cs
 
 ## 1. レイヤー作成
 
@@ -67,6 +74,8 @@ Unity の Layer に以下を追加します。
    - Rigidbody2D（Gravity Scale: 3 前後）
    - CapsuleCollider2D
    - PlayerController2D
+  - SalarymanVisual2D
+  - CodeShooter2D
 3. `Player` の子に `GroundCheck` 空オブジェクトを作成（足元）
 4. PlayerController2D の `Ground Check` に `GroundCheck` を割り当て
 5. PlayerController2D の `Ground Layer` は Ground を指定
@@ -85,6 +94,7 @@ Unity の Layer に以下を追加します。
    - Rigidbody2D（Body Type: Dynamic）
    - BoxCollider2D
    - EnemyPatrol2D
+  - BugEnemyVisual2D
 3. 子に `WallCheck` と `EdgeCheck` を作成
 4. EnemyPatrol2D の `Wall Check` と `Edge Check` に割り当て
 5. `Ground Layer` を Ground に設定
@@ -100,6 +110,12 @@ Unity の Layer に以下を追加します。
 1. `Goal` オブジェクト作成
 2. BoxCollider2D を Is Trigger = true
 3. GoalPole2D を追加
+
+## 6.5 コード強化アイテム設定
+
+1. `CodePowerUp` オブジェクト作成
+2. BoxCollider2D を Is Trigger = true
+3. CodePowerUp2D を追加
 
 ## 7. 落下死ゾーン
 
@@ -129,6 +145,7 @@ Unity の Layer に以下を追加します。
 
 - 左右移動: A/D または ←/→
 - ジャンプ: Space
+- コード射撃: J（または Left Ctrl）
 
 ## 調整ポイント
 
@@ -141,3 +158,6 @@ Unity の Layer に以下を追加します。
 - GameSession
   - startLives
   - respawnDelay
+- CodeShooter2D
+  - shootInterval
+  - codeLevels（初期 `i`、強化で長いコードへ）
